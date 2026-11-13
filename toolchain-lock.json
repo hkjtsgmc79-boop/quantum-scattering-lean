@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "target_lean_version": "4.35.0",
+  "target_toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib": {
+    "repository": "https://github.com/leanprover-community/mathlib4.git",
+    "tag": "v4.35.0",
+    "commit": "56a005855ea17e0b0958f73ec801ae140b0a1679"
+  },
+  "transitive_packages": {
+    "plausible": "dfa4f38190d07c37e315953e08b90fe2d95b3c24",
+    "LeanSearchClient": "d6b4c7be5be75ec4917c873ac50c756dc1436372",
+    "importGraph": "a41f0e9a4dea23188ea9cc1c41ac9f8bbafe0b93",
+    "proofwidgets": "df72b022e558978a1c50264cfc4d7fec86fa8e04",
+    "aesop": "4a174c490d8707121c4a9290800489f105d85e07",
+    "Qq": "dce0ad79c486cb1fb504af04f953c3466b0c6db8",
+    "batteries": "66e469188fe07963e5cf666c7d4433f45b8131c5",
+    "Cli": "c24fe6078c630e89b489bffe59b3e20ac30d12c8"
+  },
+  "upstream_evidence": {
+    "release": "https://github.com/leanprover-community/mathlib4/releases/tag/v4.35.0",
+    "commit": "https://github.com/leanprover-community/mathlib4/commit/56a005855ea17e0b0958f73ec801ae140b0a1679",
+    "toolchain": "https://raw.githubusercontent.com/leanprover-community/mathlib4/v4.35.0/lean-toolchain",
+    "manifest": "https://raw.githubusercontent.com/leanprover-community/mathlib4/v4.35.0/lake-manifest.json"
+  },
+  "evidence_kind": "Official webpages read on 2026-11-13; refs transcribed into this expected lock. NOT a successfully executed Lake manifest.",
+  "compiler_or_git_checkout_obtained_here": false
+}

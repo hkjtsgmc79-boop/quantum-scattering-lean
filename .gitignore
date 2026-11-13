@@ -1,0 +1,9 @@
+.lake/
+.build-local/
+__pycache__/
+*.olean
+*.ilean
+reports/Quantum_Scattering_F1_return_*.zip
+
+reports/
+.DS_Store

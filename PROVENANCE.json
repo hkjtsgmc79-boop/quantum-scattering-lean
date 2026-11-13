@@ -1,0 +1,14 @@
+{
+  "baseline_archive": "Quantum_Scattering_F2_Internal_Candidate.zip",
+  "baseline_archive_sha256": "c55bc07e4daeeb01d2e7a3315e65ba524c88609735153b43842e51eebf4d7477",
+  "old_toolchain": "leanprover/lean4:v4.30.0",
+  "new_toolchain": "leanprover/lean4:v4.35.0",
+  "old_mathlib_commit": "c5ea00351c28e24afc9f0f84379aa41082b1188f",
+  "new_mathlib_commit": "56a005855ea17e0b0958f73ec801ae140b0a1679",
+  "source_preservation_manifest": "migration-baseline.json",
+  "original_configuration_and_logs": "history/lean430_baseline/",
+  "migration_handoff_archive": "Quantum_Scattering_F2_Lean435_Migration.zip",
+  "migration_handoff_archive_sha256": "7aa2e1e2d85ccee9269ba190c2efbaa382675a63a828a38872fb68e7bbda590a",
+  "proof_modules_preserved_at_handoff": true,
+  "verification_report": "FIX_REPORT.md"
+}

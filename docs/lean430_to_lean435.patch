@@ -1,0 +1,636 @@
+--- Lean430/lean-toolchain
++++ Lean435/lean-toolchain
+@@ -1 +1 @@
+-leanprover/lean4:v4.30.0
++leanprover/lean4:v4.35.0
+--- Lean430/lakefile.toml
++++ Lean435/lakefile.toml
+@@ -1,14 +1,17 @@
+ name = "quantum_scattering"
+-version = "0.2.0"
+-defaultTargets = ["QuantumScattering"]
++version = "0.2.435"
++defaultTargets = ["QuantumScatteringRelease"]
+ 
+ [[require]]
+ name = "mathlib"
+ git = "https://github.com/leanprover-community/mathlib4.git"
+-rev = "c5ea00351c28e24afc9f0f84379aa41082b1188f"
++rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
+ 
+ [[lean_lib]]
+ name = "QuantumScattering"
+ 
+ [[lean_lib]]
+ name = "QuantumTunneling"
++
++[[lean_lib]]
++name = "QuantumScatteringRelease"
+--- Lean430/QuantumScatteringRelease.lean
++++ Lean435/QuantumScatteringRelease.lean
+@@ -0,0 +1,4 @@
++/- Full Lake default target: includes the framework, the vendored Q5 model,
++   and the regression bridge. A core-only Lake build is not a release build.
++   Lean 4.35.0 migration candidate; no successful build is claimed here. -/
++import QuantumScattering.ReleaseAcceptance
+--- Lean430/QuantumTunneling.lean
++++ Lean435/QuantumTunneling.lean
+@@ -0,0 +1,3 @@
++/- Vendored rectangular-model root, for ordinary Lake builds.
++   This import does not upgrade the unverified Q5 proof status. -/
++import QuantumTunneling.BidirectionalProject
+--- Lean430/Compatibility435.lean
++++ Lean435/Compatibility435.lean
+@@ -0,0 +1,23 @@
++/- Import and basic elaboration probe; NOT a substitute for the 65-module proof build. -/
++import Mathlib
++import Mathlib.Analysis.Calculus.ContDiff.Deriv
++import Mathlib.Analysis.Calculus.DSlope
++import Mathlib.Analysis.Calculus.Deriv.Inv
++import Mathlib.Analysis.SpecialFunctions.Sqrt
++import Mathlib.Analysis.SpecialFunctions.Trigonometric.Complex
++import Mathlib.Analysis.SpecialFunctions.Trigonometric.Deriv
++import Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp
++import Mathlib.Tactic.Convert
++import Mathlib.Tactic.Ext
++import Mathlib.Tactic.FieldSimp
++import Mathlib.Tactic.Linarith
++import Mathlib.Tactic.LinearCombination
++import Mathlib.Tactic.NormNum
++import Mathlib.Tactic.Positivity
++import Mathlib.Tactic.Ring
++import Mathlib.Topology.Order.DenselyOrdered
++import Mathlib.Topology.Piecewise
++
++example (x : ℝ) : x + 0 = x := by simp
++example {f : ℝ → ℂ} {f' : ℂ} {x : ℝ} (h : HasDerivAt f f' x) :
++    deriv f x = f' := h.deriv
+--- Lean430/toolchain-lock.json
++++ Lean435/toolchain-lock.json
+@@ -0,0 +1,28 @@
++{
++  "schema_version": 1,
++  "target_lean_version": "4.35.0",
++  "target_toolchain": "leanprover/lean4:v4.35.0",
++  "mathlib": {
++    "repository": "https://github.com/leanprover-community/mathlib4.git",
++    "tag": "v4.35.0",
++    "commit": "56a005855ea17e0b0958f73ec801ae140b0a1679"
++  },
++  "transitive_packages": {
++    "plausible": "dfa4f38190d07c37e315953e08b90fe2d95b3c24",
++    "LeanSearchClient": "d6b4c7be5be75ec4917c873ac50c756dc1436372",
++    "importGraph": "a41f0e9a4dea23188ea9cc1c41ac9f8bbafe0b93",
++    "proofwidgets": "df72b022e558978a1c50264cfc4d7fec86fa8e04",
++    "aesop": "4a174c490d8707121c4a9290800489f105d85e07",
++    "Qq": "dce0ad79c486cb1fb504af04f953c3466b0c6db8",
++    "batteries": "66e469188fe07963e5cf666c7d4433f45b8131c5",
++    "Cli": "c24fe6078c630e89b489bffe59b3e20ac30d12c8"
++  },
++  "upstream_evidence": {
++    "release": "https://github.com/leanprover-community/mathlib4/releases/tag/v4.35.0",
++    "commit": "https://github.com/leanprover-community/mathlib4/commit/56a005855ea17e0b0958f73ec801ae140b0a1679",
++    "toolchain": "https://raw.githubusercontent.com/leanprover-community/mathlib4/v4.35.0/lean-toolchain",
++    "manifest": "https://raw.githubusercontent.com/leanprover-community/mathlib4/v4.35.0/lake-manifest.json"
++  },
++  "evidence_kind": "Official webpages read on 2026-11-13; refs transcribed into this expected lock. NOT a successfully executed Lake manifest.",
++  "compiler_or_git_checkout_obtained_here": false
++}
+--- Lean430/scripts/verify.py
++++ Lean435/scripts/verify.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python3
+-"""F2 clean local build. RELEASE_PASS requires core, vendored Q5, real bridge,
+-examples, aggregate source and every listed axiom audit in one unchanged run.
+-There is no network access, toolchain upgrade or simulated proof result here.
++"""Fresh Lean 4.35.0 verification. Network-free; use prepare_lean435.sh first.
++A success record requires real Lean invocations; source and tooling tests cannot
++set it. Shared 4.30 caches are rejected, never upgraded or deleted in place.
+ """
+ from __future__ import annotations
+ import argparse,json,os,re,shutil,subprocess,time,zipfile
+@@ -9,124 +9,173 @@
+ from pathlib import Path
+ from build_support import (MODULES,CORE_MODULES,BRIDGE_MODULES,sha256,inventory,
+                            export,parse_axioms,dependency_order,uncomment)
++from migration_support import (EnvironmentBlocked,load_lock,version_matches,
++    require_manifest,package_candidates,check_import_sources,expected_audits,classify_failure)
+ ROOT=Path(__file__).resolve().parents[1]
+-PIN='c5ea00351c28e24afc9f0f84379aa41082b1188f'
+ 
+ def main():
+     ap=argparse.ArgumentParser(description=__doc__)
+     ap.add_argument('--lean',default=os.environ.get('LEAN_BIN'))
+     ap.add_argument('--mathlib-root',default=os.environ.get('MATHLIB_ROOT'))
+     ap.add_argument('--target',choices=['core','release'],default='release')
+-    ap.add_argument('--timeout',type=int,default=600)
++    ap.add_argument('--timeout',type=int,default=900,help='Seconds per actual command; timeout is a failure, not a pass.')
++    ap.add_argument('--preflight-only',action='store_true',help='Environment only. Never certifies proofs.')
+     args=ap.parse_args()
++    if args.timeout<=0: ap.error('--timeout must be positive')
+     stamp=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+-    out=ROOT/'reports'/('run_'+stamp);out.mkdir(parents=True)
+-    build=ROOT/'.build-local'/stamp;build.mkdir(parents=True)
++    out=ROOT/'reports'/('lean435_'+stamp);out.mkdir(parents=True,exist_ok=False)
++    build=ROOT/'.build-local'/('lean435_'+stamp);build.mkdir(parents=True,exist_ok=False)
+     report={'run_id':stamp,'target':args.target,'status':'BLOCKED','lean_verified':False,
+-            'core_verified':False,'release_verified':False,'commands':[],
++            'core_verified':False,'release_verified':False,'compiler_started':False,
++            'proof_compilation_started':False,'commands':[],
+             'required_framework_modules':MODULES if args.target=='release' else CORE_MODULES,
+-            'mathlib_pin':PIN,'source_hashes':{},
+-            'warning':'Source candidates only until the actual command sequence completes.'}
++            'source_hashes':{},'source_hashes_after':{},
++            'warning':'Only the actual command chain can establish compilation. This is not external semantic review.'}
+     env=os.environ.copy()
+     def sources():
+         paths=list((ROOT/'QuantumScattering').glob('*.lean'))+list((ROOT/'QuantumTunneling').glob('*.lean'))
+-        paths+=list(ROOT.glob('*.lean'))+list((ROOT/'scripts').glob('*.py'))
+-        paths += [ROOT/n for n in ['lean-toolchain','lakefile.toml','contracts.json']]
+-        return {str(p.relative_to(ROOT)):sha256(p) for p in sorted(paths)}
+-    def run(tag,argv):
+-        start=time.monotonic()
++        paths+=list(ROOT.glob('*.lean'))+list((ROOT/'scripts').glob('*.py'))+list((ROOT/'scripts').glob('*.sh'))
++        paths += [ROOT/n for n in ['lean-toolchain','lakefile.toml','contracts.json','toolchain-lock.json']]
++        return {str(p.relative_to(ROOT)):sha256(p) for p in sorted(paths) if p.is_file()}
++    def persist():
++        (out/'verification.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
++    def run(tag,argv,cwd=ROOT):
++        report['current_stage']=tag;persist();start=time.monotonic()
+         try:
+-            proc=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True,text=True,timeout=args.timeout)
++            proc=subprocess.run(argv,cwd=cwd,env=env,capture_output=True,text=True,timeout=args.timeout)
+             code=proc.returncode;txt=proc.stdout+proc.stderr
+         except subprocess.TimeoutExpired as ex:
+-            code=124;txt=str(ex)+'\nTIMEOUT\n'
+-        except OSError as ex:code=127;txt=str(ex)+'\n'
+-        log=out/(tag+'.log');log.write_text(txt)
++            def txt(x): return x.decode(errors='replace') if isinstance(x,bytes) else (x or '')
++            code=124;txt=txt(ex.stdout)+txt(ex.stderr)+'\nTIMEOUT: '+str(ex)+'\n'
++        except OSError as ex: code=127;txt=str(ex)+'\n'
++        log=out/(tag+'.log');log.write_text(txt,encoding='utf-8')
+         report['commands'].append({'tag':tag,'argv':argv,'exit_code':code,
+           'seconds':time.monotonic()-start,'log':log.name,'log_sha256':sha256(log)})
+-        print(tag,'exit',code,flush=True)
++        print(tag,'exit',code,flush=True);persist()
++        if code: print(txt[-6000:],flush=True)
+         return code,txt
++    def checked_repo(label,path,rev):
++        rc,txt=run(label+'-commit',['git','-C',str(path),'rev-parse','HEAD'])
++        if rc or txt.strip()!=rev: raise EnvironmentBlocked('Pinned commit mismatch: '+label)
++        rc,txt=run(label+'-tracked-clean',['git','-C',str(path),'status','--porcelain','--untracked-files=no'])
++        if rc or txt.strip(): raise EnvironmentBlocked('Tracked dependency source modified: '+label)
+     def compile_file(tag,path,audit_specs=()):
++        if tag!='Compatibility435': report['proof_compilation_started']=True
+         rel=path.relative_to(ROOT);target=build/rel.with_suffix('.olean');target.parent.mkdir(parents=True,exist_ok=True)
+         rc,txt=run(tag,[lean,'-o',str(target),'-i',str(target.with_suffix('.ilean')),str(rel)])
+         if rc or re.search(r"declaration uses ['`]?sorry|\bsorryAx\b",txt):
+-            report['failed_stage']=tag;raise RuntimeError('FAIL: '+tag)
++            report['failed_stage']=tag;raise RuntimeError('Proof build failed: '+tag)
++        if not target.is_file(): raise RuntimeError('Lean returned success but expected olean is missing: '+tag)
++        report.setdefault('compiled_artifacts',{})[str(rel)]={'olean_sha256':sha256(target)}
+         if audit_specs:
+-            expected=[]
+-            for spec in audit_specs:
+-                expected+=re.findall(r'^#print axioms (\S+)',(ROOT/spec).read_text(),re.M)
++            expected=expected_audits(ROOT,list(audit_specs))
+             result=parse_axioms(txt,expected)
+             (out/(tag+'-axioms.json')).write_text(json.dumps(result,indent=2)+'\n')
+-            report.setdefault('audits',{})[tag]={'count':len(result),'passed':True}
++            report.setdefault('audits',{})[tag]={'count':len(result),'passed':True,'declarations':result}
++        persist()
+     try:
++        lock=load_lock(ROOT);PIN=lock['mathlib']['commit'];tc=lock['target_toolchain']
++        report.update(target_toolchain=tc,mathlib_pin=PIN,lock_sha256=sha256(ROOT/'toolchain-lock.json'))
++        if (ROOT/'lean-toolchain').read_text().strip()!=tc: raise RuntimeError('Project toolchain differs from lock')
++        lake_text=(ROOT/'lakefile.toml').read_text()
++        if not re.search(r'rev\s*=\s*"'+PIN+r'"',lake_text): raise RuntimeError('Lake Mathlib pin differs from lock')
+         export(ROOT)
+         inv=inventory(ROOT);(out/'source-inventory.json').write_text(json.dumps(inv,indent=2)+'\n')
+-        if inv['forbidden_tokens'] or inv['duplicate_names']:raise RuntimeError('FAIL: framework source guard')
++        if inv['forbidden_tokens'] or inv['duplicate_names']: raise RuntimeError('Framework source guard failed')
+         for path in list((ROOT/'QuantumTunneling').glob('*.lean'))+list(ROOT.glob('*.lean')):
+             code=uncomment(path.read_text())
+             if re.search(r'\b(?:sorry|admit|axiom|unsafe|native_decide)\b',code) or 'skipKernel' in code:
+-                raise RuntimeError('FAIL: forbidden proof escape in '+str(path.relative_to(ROOT)))
++                raise RuntimeError('Forbidden proof escape: '+str(path.relative_to(ROOT)))
+         for item in json.loads((ROOT/'contracts.json').read_text()):
+             txt=(ROOT/item['file']).read_text();i=txt.index(item['start']);j=txt.index(item['end'],i)
+-            if txt[i:j]!=item['expected']:raise RuntimeError('FAIL: protected public contract changed: '+item['file'])
++            if txt[i:j]!=item['expected']: raise RuntimeError('Protected public statement changed: '+item['file'])
+         report['source_hashes']=sources()
+         baseline=json.loads((ROOT/'inherited-sources.json').read_text())
+-        report['inherited_source_changes']={
+-          label:[name for name,digest in files.items() if sha256(ROOT/name)!=digest]
+-          for label,files in baseline.items()}
+-        # Changes to inherited proof bodies are allowed and transparently recorded;
+-        # changing a protected statement/definition is not allowed.
+-        lean=args.lean or shutil.which('lean')
+-        if not lean:raise RuntimeError('BLOCKED: no Lean executable; no proof compiler was started')
+-        lean=str(Path(lean).expanduser().resolve())
++        report['inherited_source_changes']={label:[n for n,h in fs.items() if sha256(ROOT/n)!=h] for label,fs in baseline.items()}
++        migration=json.loads((ROOT/'migration-baseline.json').read_text())
++        report['migration_proof_changes']=[n for n,h in migration['proof_modules'].items() if sha256(ROOT/n)!=h]
++        lean=args.lean
++        if not lean and shutil.which('elan'):
++            rc,txt=run('elan-exact-lean',['elan','which','--toolchain',tc,'lean'])
++            if not rc: lean=txt.strip()
++        if not lean: lean=shutil.which('lean')
++        if not lean: raise EnvironmentBlocked('No Lean executable; proof compiler was not started')
++        # Preserve a lean/elan proxy's invocation basename. Resolving its symlink
++        # to an elan executable before invoking it can change command semantics.
++        lean=os.path.abspath(os.path.expanduser(lean))
+         rc,txt=run('lean-version',[lean,'--version'])
+-        if rc or not re.search(r'\bversion\s+4\.30\.0(?:\s|,|\))',txt):
+-            raise RuntimeError('BLOCKED: require Lean 4.30.0')
++        report['compiler_started']=(rc==0)
++        if rc or not version_matches(txt,lock['target_lean_version']):
++            raise EnvironmentBlocked('Require exact Lean '+lock['target_lean_version']+'; old cache is not acceptable')
+         report['lean_executable_sha256']=sha256(Path(lean))
+         mathroot=Path(args.mathlib_root).expanduser().resolve() if args.mathlib_root else ROOT/'.lake/packages/mathlib'
+-        if not (mathroot/'.lake/build/lib/lean').is_dir():raise RuntimeError('BLOCKED: compiled Mathlib cache missing')
+-        rc,txt=run('mathlib-commit',['git','-C',str(mathroot),'rev-parse','HEAD'])
+-        if rc or txt.strip()!=PIN:raise RuntimeError('BLOCKED: fixed Mathlib commit mismatch')
+-        rc,txt=run('mathlib-clean',['git','-C',str(mathroot),'status','--porcelain','--untracked-files=no'])
+-        if rc or txt.strip():raise RuntimeError('BLOCKED: Mathlib tracked files changed')
+-        if (mathroot/'lean-toolchain').read_text().strip()!='leanprover/lean4:v4.30.0':
+-            raise RuntimeError('BLOCKED: Mathlib toolchain mismatch')
+-        paths=[build,mathroot/'.lake/build/lib/lean']+sorted((mathroot/'.lake/packages').glob('*/.lake/build/lib/lean'))
++        if not (mathroot/'lean-toolchain').is_file(): raise EnvironmentBlocked('Mathlib source checkout missing')
++        if (mathroot/'lean-toolchain').read_text().strip()!=tc: raise EnvironmentBlocked('Mathlib toolchain is not '+tc)
++        checked_repo('mathlib',mathroot,PIN)
++        manifest=mathroot/'lake-manifest.json'
++        require_manifest(manifest,lock['transitive_packages'])
++        shutil.copy2(manifest,out/'resolved-mathlib-manifest.json')
++        expected=dict(lock['transitive_packages']);expected['mathlib']=PIN
++        own_manifest=ROOT/'lake-manifest.json'
++        if own_manifest.is_file():
++            require_manifest(own_manifest,expected)
++            shutil.copy2(own_manifest,out/'resolved-project-manifest.json')
++        if not (mathroot/'.lake/build/lib/lean/Mathlib.olean').is_file():
++            raise EnvironmentBlocked('Exact-version Mathlib.olean cache missing')
++        dep_paths=[];dep_records={}
++        for name,rev in lock['transitive_packages'].items():
++            options=[p for p in package_candidates(ROOT,mathroot,name) if (p/'.git').exists()]
++            if not options: raise EnvironmentBlocked('Dependency checkout missing: '+name)
++            # Select the first candidate, then verify; never silently accept an
++            # unrelated wrong-version sibling just because its cache exists.
++            selected=options[0];checked_repo('dependency-'+name,selected,rev)
++            cache=selected/'.lake/build/lib/lean'
++            if not cache.is_dir(): raise EnvironmentBlocked('Dependency Lean cache missing: '+name)
++            dep_paths.append(cache);dep_records[name]={'root':str(selected),'commit':rev}
++        report['dependencies']=dep_records
++        report['import_preflight']=check_import_sources(ROOT,mathroot)
++        paths=[build,mathroot/'.lake/build/lib/lean',*dep_paths]
+         env['LEAN_PATH']=os.pathsep.join(str(p) for p in paths)
+         report['lean_path']=env['LEAN_PATH']
+-        if (mathroot/'lake-manifest.json').is_file():shutil.copy2(mathroot/'lake-manifest.json',out/'resolved-mathlib-manifest.json')
+-        for name in CORE_MODULES:compile_file('core-'+name,ROOT/'QuantumScattering'/(name+'.lean'))
+-        for name in ['QuantumScattering','Examples','FrameworkExamples']:
+-            compile_file(name,ROOT/(name+'.lean'))
+-        compile_file('Audit',ROOT/'Audit.lean',['Audit.lean'])
+-        compile_file('CoreAll',ROOT/'Quantum_Scattering_F2_Core_All.lean',['Audit.lean'])
+-        report['core_verified']=True
+-        if args.target=='release':
+-            vendor_order=dependency_order(ROOT,'QuantumTunneling')
+-            report['vendored_Q5_modules']=vendor_order
+-            for name in vendor_order:compile_file('Q5-'+name,ROOT/'QuantumTunneling'/(name+'.lean'))
+-            for name in BRIDGE_MODULES:compile_file('bridge-'+name,ROOT/'QuantumScattering'/(name+'.lean'))
+-            compile_file('BridgeExamples',ROOT/'BridgeExamples.lean')
+-            compile_file('BridgeAudit',ROOT/'BridgeAudit.lean',['BridgeAudit.lean'])
+-            compile_file('ReleaseAudit',ROOT/'ReleaseAudit.lean',['ReleaseAudit.lean'])
+-            compile_file('FullAll',ROOT/'Quantum_Scattering_F2_All.lean',
+-                         ['Audit.lean','BridgeAudit.lean','ReleaseAudit.lean'])
+-            report.update(status='RELEASE_PASS',lean_verified=True,release_verified=True)
++        # A real import-only probe also rejects incompatible binary caches.
++        compile_file('Compatibility435',ROOT/'Compatibility435.lean')
++        if args.preflight_only:
++            report.update(status='PREFLIGHT_PASS',lean_verified=False,
++                          note='Environment/import probe only; NO project theorem has passed this target.')
+         else:
+-            report.update(status='CORE_PASS',lean_verified=True,
+-                          note='Core-only success is NOT a complete release result; Q5 bridge is not certified here.')
+-    except (RuntimeError,ValueError,OSError) as ex:
+-        report['status']='BLOCKED' if str(ex).startswith('BLOCKED:') else (
+-            'CORE_PASS_RELEASE_FAILED' if report['core_verified'] else 'FAIL')
+-        report['reason']=str(ex);print(ex)
++            for name in CORE_MODULES:compile_file('core-'+name,ROOT/'QuantumScattering'/(name+'.lean'))
++            for name in ['QuantumScattering','Examples','FrameworkExamples']:compile_file(name,ROOT/(name+'.lean'))
++            compile_file('Audit',ROOT/'Audit.lean',['Audit.lean'])
++            compile_file('CoreAll',ROOT/'Quantum_Scattering_F2_Core_All.lean',['Audit.lean'])
++            report['core_verified']=True;persist()
++            if args.target=='release':
++                vendor_order=dependency_order(ROOT,'QuantumTunneling');report['vendored_Q5_modules']=vendor_order
++                for name in vendor_order:compile_file('Q5-'+name,ROOT/'QuantumTunneling'/(name+'.lean'))
++                for name in BRIDGE_MODULES:compile_file('bridge-'+name,ROOT/'QuantumScattering'/(name+'.lean'))
++                compile_file('QuantumScatteringRelease',ROOT/'QuantumScatteringRelease.lean')
++                compile_file('BridgeExamples',ROOT/'BridgeExamples.lean')
++                compile_file('BridgeAudit',ROOT/'BridgeAudit.lean',['BridgeAudit.lean'])
++                compile_file('ReleaseAudit',ROOT/'ReleaseAudit.lean',['ReleaseAudit.lean'])
++                compile_file('FullAll',ROOT/'Quantum_Scattering_F2_All.lean',['Audit.lean','BridgeAudit.lean','ReleaseAudit.lean'])
++                report.update(status='RELEASE_PASS',lean_verified=True,release_verified=True)
++            else:
++                report.update(status='CORE_PASS',lean_verified=True,note='Core-only: complete framework not verified.')
++    except EnvironmentBlocked as ex:
++        report.update(status=classify_failure(report['core_verified'],True),reason=str(ex))
++        print('BLOCKED:',ex,flush=True)
++    except (RuntimeError,ValueError,OSError,KeyError,subprocess.SubprocessError) as ex:
++        report.update(status=classify_failure(report['core_verified'],False),reason=str(ex))
++        print('FAIL:',ex,flush=True)
++    except KeyboardInterrupt:
++        report.update(status='INTERRUPTED',reason='Stopped by operator')
+     finally:
+         report['source_hashes_after']=sources()
+-        if report['source_hashes'] and report['source_hashes']!=report['source_hashes_after']:
+-            report.update(status='FAIL',lean_verified=False,core_verified=False,
+-              release_verified=False,reason='Source changed during verification; rerun required')
+-        report['finished_utc']=datetime.now(timezone.utc).isoformat()
+-        (out/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
+-        target=ROOT/'reports'/('Quantum_Scattering_F2_return_'+stamp+'.zip')
++        report['source_unchanged']=report['source_hashes']==report['source_hashes_after'] if report['source_hashes'] else None
++        if report['source_hashes'] and not report['source_unchanged']:
++            report.update(status='FAIL',lean_verified=False,core_verified=False,release_verified=False,
++                          reason='Source changed during verification; rerun required')
++        report['finished_utc']=datetime.now(timezone.utc).isoformat();persist()
++        target=ROOT/'reports'/('Quantum_Scattering_Lean435_return_'+stamp+'.zip')
+         with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED) as z:
+             for p in ROOT.rglob('*'):
+                 if not p.is_file() or any(x in p.relative_to(ROOT).parts for x in
+@@ -134,6 +183,6 @@
+                 z.write(p,'project/'+str(p.relative_to(ROOT)))
+             for p in out.iterdir():
+                 if p.is_file():z.write(p,'verification/'+p.name)
+-        print('RESULT:',report['status'],'\nRETURN:',target)
+-    return 0 if report['status'] in ['RELEASE_PASS','CORE_PASS'] else 2 if report['status']=='BLOCKED' else 1
++        print('RESULT:',report['status'],'\nRETURN:',target,flush=True)
++    return 0 if report['status'] in ['RELEASE_PASS','CORE_PASS','PREFLIGHT_PASS'] else 2 if 'BLOCKED' in report['status'] else 1
+ if __name__=='__main__':raise SystemExit(main())
+--- Lean430/scripts/verify.sh
++++ Lean435/scripts/verify.sh
+@@ -1,4 +1,5 @@
+ #!/usr/bin/env bash
+ set -euo pipefail
+ cd "$(dirname "$0")/.."
++export PATH="$HOME/.elan/bin:$PATH"
+ exec python3 scripts/verify.py "$@"
+--- Lean430/scripts/build_support.py
++++ Lean435/scripts/build_support.py
+@@ -77,7 +77,7 @@
+     return ordered
+ 
+ def export_one(root,names,filename,audits,legacy=False):
+-    chunks=['/- F2 GENERATED CANDIDATE. Uncompiled. Edit canonical modules only. -/\nimport Mathlib\n']
++    chunks=['/- F2 Lean 4.35.0 MIGRATION CANDIDATE. Not compiled here. Edit canonical modules only. -/\nimport Mathlib\n']
+     if legacy:chunks+=['import QuantumTunneling.BidirectionalProject\n']
+     for name in names:
+         t=(root/'QuantumScattering'/(name+'.lean')).read_text()
+--- Lean430/scripts/migration_support.py
++++ Lean435/scripts/migration_support.py
+@@ -0,0 +1,76 @@
++"""Exact version, dependency and package-layout checks. Not a Lean checker."""
++from __future__ import annotations
++import json, os, re, subprocess
++from pathlib import Path
++
++class EnvironmentBlocked(RuntimeError):
++    pass
++
++def load_lock(root: Path) -> dict:
++    data = json.loads((root/'toolchain-lock.json').read_text(encoding='utf-8'))
++    if data['target_toolchain'] != 'leanprover/lean4:v'+data['target_lean_version']:
++        raise ValueError('Inconsistent Lean toolchain lock')
++    for rev in [data['mathlib']['commit'], *data['transitive_packages'].values()]:
++        if not re.fullmatch(r'[0-9a-f]{40}', rev):
++            raise ValueError('Lock must contain complete Git commit IDs')
++    return data
++
++def version_matches(text: str, version: str) -> bool:
++    # Exclude RC/nightly versions, and also 4.35.01 / 4.35.0-rc1.
++    return re.search(r'\bversion\s+'+re.escape(version)+r'(?=[\s,)])', text) is not None
++
++def manifest_revisions(path: Path) -> dict[str, str]:
++    doc = json.loads(path.read_text(encoding='utf-8'))
++    result = {}
++    for p in doc.get('packages', []):
++        if p['name'] in result:
++            raise ValueError('Duplicate package name in '+str(path))
++        if p.get('type') != 'git' or not re.fullmatch(r'[0-9a-f]{40}',p.get('rev','')):
++            raise ValueError('Non-Git or unpinned dependency in '+str(path))
++        result[p['name']] = p['rev']
++    return result
++
++def require_manifest(path: Path, expected: dict[str, str]) -> dict[str, str]:
++    got = manifest_revisions(path)
++    if got != expected:
++        mismatch = {n: {'expected': expected.get(n), 'actual': got.get(n)}
++                    for n in set(expected)|set(got) if expected.get(n)!=got.get(n)}
++        raise EnvironmentBlocked('Dependency manifest does not match 4.35.0 lock: '+json.dumps(mismatch))
++    return got
++
++def package_candidates(project: Path, mathroot: Path, name: str) -> list[Path]:
++    # Lake puts dependencies next to mathlib in a project checkout; standalone
++    # Mathlib checkouts instead use mathlib/.lake/packages. Support both.
++    candidates = [mathroot.parent/name, mathroot/'.lake/packages'/name,
++                  project/'.lake/packages'/name]
++    out=[]
++    for p in candidates:
++        p=p.absolute()
++        if p not in out: out.append(p)
++    return out
++
++def local_mathlib_imports(root: Path) -> set[str]:
++    imports=set()
++    for ns in ['QuantumScattering','QuantumTunneling']:
++        for p in (root/ns).glob('*.lean'):
++            imports.update(re.findall(r'^import (Mathlib(?:\.\S+)?)',p.read_text(),re.M))
++    return imports
++
++def check_import_sources(root: Path, mathroot: Path) -> dict:
++    imports = sorted(local_mathlib_imports(root))
++    missing = [n for n in imports if not (mathroot/(n.replace('.','/')+'.lean')).is_file()]
++    if missing:
++        raise EnvironmentBlocked('Pinned Mathlib source has missing import paths: '+', '.join(missing))
++    return {'import_count':len(imports), 'imports':imports, 'source_paths_found':True}
++
++def expected_audits(root: Path, specs: list[str]) -> list[str]:
++    names=[]
++    for file in specs:
++        names += re.findall(r'^#print axioms (\S+)\s*$',(root/file).read_text(),re.M)
++    if not names or len(names)!=len(set(names)):
++        raise ValueError('Empty or duplicate audit declaration list')
++    return names
++
++def classify_failure(core_verified: bool, blocked: bool) -> str:
++    if core_verified: return 'CORE_PASS_RELEASE_BLOCKED' if blocked else 'CORE_PASS_RELEASE_FAILED'
++    return 'BLOCKED' if blocked else 'FAIL'
+--- Lean430/scripts/prepare_lean435.sh
++++ Lean435/scripts/prepare_lean435.sh
+@@ -0,0 +1,55 @@
++#!/usr/bin/env bash
++# Explicitly run this script to download ONLY the pinned project environment.
++# Does not change elan default, delete 4.30, or touch another project's cache.
++set -euo pipefail
++cd "$(dirname "$0")/.."
++export PATH="$HOME/.elan/bin:$PATH"
++TC='leanprover/lean4:v4.35.0'
++STAMP="$(date -u +%Y%m%dT%H%M%SZ)_$$"
++OUT="reports/setup435_$STAMP"
++mkdir -p "$OUT"
++exec > >(tee "$OUT/setup.log") 2>&1
++trap 'rc=$?; printf "SETUP_EXIT_CODE=%s\n" "$rc" > "$OUT/exit_code.txt"; exit "$rc"' EXIT
++for tool in python3 git elan; do
++  if ! command -v "$tool" >/dev/null 2>&1; then
++    echo "BLOCKED: $tool is missing. See 00_START_HERE.md. No proof verification performed."
++    exit 2
++  fi
++done
++python3 -c 'import sys; assert sys.version_info >= (3,9), "Python 3.9+ required"'
++# Fail before any downloads if this checkout does not target the declared version.
++python3 - <<'PY'
++import sys
++from pathlib import Path
++sys.path.insert(0,'scripts')
++from migration_support import load_lock
++p=Path('.')
++l=load_lock(p)
++assert l['target_toolchain']=='leanprover/lean4:v4.35.0'
++assert (p/'lean-toolchain').read_text().strip()==l['target_toolchain']
++assert 'rev = "'+l['mathlib']['commit']+'"' in (p/'lakefile.toml').read_text()
++PY
++# Refuse symlinked dependency directories to avoid altering a shared 4.30 checkout.
++if [[ -L .lake || -L .lake/packages || -L .lake/packages/mathlib ]]; then
++  echo 'BLOCKED: project dependency directories are symlinked. Use a fresh extraction.'
++  exit 2
++fi
++elan toolchain install "$TC"
++elan run "$TC" lean --version
++elan run "$TC" lake update
++# Do not obtain a cache for an unexpected resolution.
++python3 - <<'PY'
++import sys
++from pathlib import Path
++sys.path.insert(0,'scripts')
++from migration_support import load_lock,require_manifest
++r=Path('.');l=load_lock(r)
++wanted=dict(l['transitive_packages']);wanted['mathlib']=l['mathlib']['commit']
++require_manifest(r/'lake-manifest.json',wanted)
++assert (r/'.lake/packages/mathlib/lean-toolchain').read_text().strip()==l['target_toolchain']
++PY
++elan run "$TC" lake exe cache get
++LEAN="$(elan which --toolchain "$TC" lean)"
++python3 scripts/verify.py --lean "$LEAN" --mathlib-root "$PWD/.lake/packages/mathlib" --preflight-only
++printf '\nEnvironment preparation complete. NO framework proofs were verified by setup.\n'
++printf 'Next: bash scripts/verify.sh --target release\n'
+--- Lean430/scripts/complete_lean435.sh
++++ Lean435/scripts/complete_lean435.sh
+@@ -0,0 +1,7 @@
++#!/usr/bin/env bash
++# New environment + complete unchanged mathematical target; fail at first error.
++set -euo pipefail
++cd "$(dirname "$0")/.."
++export PATH="$HOME/.elan/bin:$PATH"
++bash scripts/prepare_lean435.sh
++exec bash scripts/verify.sh --target release "$@"
+--- Lean430/scripts/check_kernel_linux435.sh
++++ Lean435/scripts/check_kernel_linux435.sh
+@@ -0,0 +1,21 @@
++#!/usr/bin/env bash
++# Optional 4.35 independent process/kernel replay, AFTER full ordinary verification.
++set -euo pipefail
++cd "$(dirname "$0")/.."
++export PATH="$HOME/.elan/bin:$PATH"
++if [[ "$(uname -s)" != Linux ]]; then
++  echo 'BLOCKED: the documented lake check sandbox is Linux-only. Do not bypass it on macOS.'
++  exit 2
++fi
++for tool in elan bwrap; do
++  command -v "$tool" >/dev/null 2>&1 || { echo "BLOCKED: missing $tool"; exit 2; }
++done
++if [[ $# -gt 1 || ( $# -eq 1 && "$1" != --paranoid ) ]]; then
++  echo 'Usage: bash scripts/check_kernel_linux435.sh [--paranoid]'
++  exit 2
++fi
++OUT="reports/kernel435_$(date -u +%Y%m%dT%H%M%SZ)_$$"
++mkdir -p "$OUT"
++# This command may perform normal Lake dependency resolution; use only the pinned project.
++elan run leanprover/lean4:v4.35.0 lake check "$@" 2>&1 | tee "$OUT/lake-check.log"
++echo 'lake check finished successfully for this invocation; retain this log separately.'
+--- Lean430/tests/test_migration435.py
++++ Lean435/tests/test_migration435.py
+@@ -0,0 +1,76 @@
++"""Unit tests of migration tooling/configuration only; never proof verification."""
++import hashlib,json,re,sys,tempfile,unittest
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT/'scripts'))
++from migration_support import (load_lock,version_matches,manifest_revisions,
++    require_manifest,package_candidates,expected_audits,classify_failure,EnvironmentBlocked)
++
++class Migration435Tests(unittest.TestCase):
++    def test_exact_version(self): self.assertTrue(version_matches('Lean (version 4.35.0, x86_64-unknown-linux-gnu)','4.35.0'))
++    def test_old_rejected(self): self.assertFalse(version_matches('Lean (version 4.30.0, arm64)','4.35.0'))
++    def test_rc_rejected(self): self.assertFalse(version_matches('Lean (version 4.35.0-rc1, arm64)','4.35.0'))
++    def test_prefix_rejected(self): self.assertFalse(version_matches('Lean (version 4.35.01, arm64)','4.35.0'))
++    def test_lock(self):
++        l=load_lock(ROOT)
++        self.assertEqual(l['target_toolchain'],'leanprover/lean4:v4.35.0')
++        self.assertEqual(l['mathlib']['commit'],'56a005855ea17e0b0958f73ec801ae140b0a1679')
++        self.assertEqual(len(l['transitive_packages']),8)
++    def test_current_toolchain_matches(self):
++        self.assertEqual((ROOT/'lean-toolchain').read_text().strip(),load_lock(ROOT)['target_toolchain'])
++    def test_lake_pin_matches(self):
++        self.assertIn('rev = "'+load_lock(ROOT)['mathlib']['commit']+'"',(ROOT/'lakefile.toml').read_text())
++    def test_full_lake_entry(self):
++        self.assertIn('defaultTargets = ["QuantumScatteringRelease"]',(ROOT/'lakefile.toml').read_text())
++        self.assertIn('import QuantumScattering.ReleaseAcceptance',(ROOT/'QuantumScatteringRelease.lean').read_text())
++    def test_all_math_sources_preserved(self):
++        record=json.loads((ROOT/'migration-baseline.json').read_text())
++        self.assertEqual(len(record['proof_modules']),65)
++        for file,want in record['proof_modules'].items():
++            self.assertEqual(hashlib.sha256((ROOT/file).read_bytes()).hexdigest(),want,msg=file)
++    def test_contract_file_preserved(self):
++        b=json.loads((ROOT/'migration-baseline.json').read_text())
++        self.assertEqual(hashlib.sha256((ROOT/'contracts.json').read_bytes()).hexdigest(),b['contracts_sha256'])
++    def test_all_audits(self):
++        self.assertEqual(len(expected_audits(ROOT,['Audit.lean','BridgeAudit.lean','ReleaseAudit.lean'])),55)
++    def test_project_and_standalone_cache_layouts(self):
++        roots=package_candidates(Path('/work/project'),Path('/work/mathlib'),'batteries')
++        self.assertIn(Path('/work/mathlib/.lake/packages/batteries'),roots)
++        self.assertIn(Path('/work/batteries'),roots)
++        self.assertIn(Path('/work/project/.lake/packages/batteries'),roots)
++    def test_manifest_exact(self):
++        wanted=load_lock(ROOT)['transitive_packages']
++        with tempfile.TemporaryDirectory() as t:
++            p=Path(t)/'manifest.json';p.write_text(json.dumps({'packages':[{'name':n,'rev':r,'type':'git'} for n,r in wanted.items()]}))
++            self.assertEqual(require_manifest(p,wanted),wanted)
++    def test_manifest_wrong_commit(self):
++        wanted=load_lock(ROOT)['transitive_packages']
++        rows=[{'name':n,'rev':r,'type':'git'} for n,r in wanted.items()];rows[0]['rev']='0'*40
++        with tempfile.TemporaryDirectory() as t:
++            p=Path(t)/'manifest.json';p.write_text(json.dumps({'packages':rows}))
++            with self.assertRaises(EnvironmentBlocked):require_manifest(p,wanted)
++    def test_manifest_duplicate(self):
++        with tempfile.TemporaryDirectory() as t:
++            p=Path(t)/'manifest.json';p.write_text(json.dumps({'packages':[{'name':'x','rev':'0'*40,'type':'git'}]*2}))
++            with self.assertRaises(ValueError):manifest_revisions(p)
++    def test_manifest_missing(self):
++        with tempfile.TemporaryDirectory() as t:
++            p=Path(t)/'manifest.json';p.write_text('{"packages":[]}')
++            with self.assertRaises(EnvironmentBlocked):require_manifest(p,{'x':'0'*40})
++    def test_partial_failure_not_full_pass(self):
++        self.assertEqual(classify_failure(True,False),'CORE_PASS_RELEASE_FAILED')
++        self.assertEqual(classify_failure(True,True),'CORE_PASS_RELEASE_BLOCKED')
++        self.assertEqual(classify_failure(False,True),'BLOCKED')
++    def test_no_old_active_runner_pin(self):
++        text=(ROOT/'scripts/verify.py').read_text()
++        self.assertNotIn('c5ea00351',text)
++        self.assertNotIn("require Lean 4.30.0",text)
++        self.assertNotIn('4\\.30\\.0',text)
++    def test_no_global_default_change(self):
++        text=(ROOT/'scripts/prepare_lean435.sh').read_text()
++        commands=[x.strip() for x in text.splitlines() if not x.lstrip().startswith('#')]
++        self.assertFalse(any('elan default ' in x for x in commands))
++    def test_import_probe_has_real_derivative(self):
++        self.assertIn('HasDerivAt',(ROOT/'Compatibility435.lean').read_text())
++        self.assertIn('deriv f x = f\' := h.deriv',(ROOT/'Compatibility435.lean').read_text())
++if __name__=='__main__':unittest.main(verbosity=2)

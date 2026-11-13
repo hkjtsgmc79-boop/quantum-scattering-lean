@@ -1,0 +1,86 @@
+[
+  {
+    "file": "QuantumScattering/Framework.lean",
+    "start": "structure FiniteScatteringCertificate",
+    "end": "/-- Constructive reusable",
+    "expected": "structure FiniteScatteringCertificate (p : PhysicalProblem) : Prop where\n  existence_uniqueness : ∀ iL iR : ℂ,\n    ∃! fv : (ℝ→ℂ)×(ℝ→ℂ), p.problem.Admissible iL iR fv.1 fv.2\n  regularity : ∀ iL iR : ℂ, ContDiff ℝ 1 (p.problem.wave iL iR)\n  physical_equation : ∀ (iL iR : ℂ) (x : ℝ), x∉p.problem.jumps →\n    -(p.hbar^2/(2*p.mass) : ℝ) • deriv (deriv (p.problem.wave iL iR)) x +\n      p.potential x • p.problem.wave iL iR x=p.energy • p.problem.wave iL iR x\n  actual_flux : ∀ (iL iR : ℂ) (x : ℝ),\n    current p.hbar p.mass (p.problem.wave iL iR) x=\n      (p.hbar/p.mass)*(absSq iL-absSq (p.problem.outgoing iL iR).1)\n  unitary_left : p.problem.channels.scatteringMatrix.conjTranspose*\n    p.problem.channels.scatteringMatrix=1\n  unitary_right : p.problem.channels.scatteringMatrix*\n    p.problem.channels.scatteringMatrix.conjTranspose=1\n  reciprocal : p.problem.channels.scatteringMatrix.transpose=p.problem.channels.scatteringMatrix\n  left_modes : ∀ (iL iR : ℂ) (x : ℝ), x<0 →\n    p.problem.wave iL iR x=\n      (iL*plane p.problem.left.k x+\n        (p.problem.outgoing iL iR).1*plane (-p.problem.left.k) x)/(p.problem.left.root : ℂ)\n  right_modes : ∀ (iL iR : ℂ) (x : ℝ), Stack.width p.problem.layers ≤ x →\n    p.problem.wave iL iR x=\n      ((p.problem.outgoing iL iR).2*plane p.problem.right.k (x-Stack.width p.problem.layers)+\n        iR*plane (-p.problem.right.k) (x-Stack.width p.problem.layers))/(p.problem.right.root : ℂ)\n  positive_transmission : 0<p.problem.channels.transmission\n  transparent_iff : p.problem.channels.transmission=1 ↔ p.problem.channels.beta=0\n\n"
+  },
+  {
+    "file": "QuantumScattering/Framework.lean",
+    "start": "theorem any_finite_real_layers",
+    "end": " :=\n",
+    "expected": "theorem any_finite_real_layers\n    (hbar mass energy vLeft vRight : ℝ) (layers : List PhysicalLayer)\n    (hh : 0<hbar) (hm : 0<mass) (hl : vLeft<energy) (hr : vRight<energy) :\n    FiniteScatteringCertificate\n      ⟨hbar,mass,energy,vLeft,vRight,layers,hh,hm,hl,hr⟩"
+  },
+  {
+    "file": "QuantumScattering/StackUniqueness.lean",
+    "start": "def Admissible",
+    "end": "lemma wave_admissible",
+    "expected": "def Admissible (p : Problem) (iL iR : ℂ) (f v : ℝ→ℂ) : Prop :=\n  ClassicalState p.coefficient p.jumps f v ∧\n  (p.left.decode ⟨f 0,v 0⟩).forward=iL ∧\n  (p.right.decode ⟨f (Stack.width p.layers),v (Stack.width p.layers)⟩).backward=iR\n\n"
+  },
+  {
+    "file": "QuantumScattering/PhysicalModel.lean",
+    "start": "structure PhysicalProblem",
+    "end": "namespace PhysicalProblem",
+    "expected": "structure PhysicalProblem where\n  hbar : ℝ\n  mass : ℝ\n  energy : ℝ\n  leftLevel : ℝ\n  rightLevel : ℝ\n  layers : List PhysicalLayer\n  hbar_pos : 0 < hbar\n  mass_pos : 0 < mass\n  left_open : leftLevel < energy\n  right_open : rightLevel < energy\n\n"
+  },
+  {
+    "file": "QuantumScattering/FrameworkCompletion.lean",
+    "start": "structure ReusableFrameworkCertificate",
+    "end": "theorem reusable_finite_layer_framework",
+    "expected": "structure ReusableFrameworkCertificate (p : PhysicalProblem) : Prop where\n  finite_layers : FiniteScatteringCertificate p\n  incoming_infinity : ∀ iL iR:ℂ, ∃! f:ℝ→ℂ, p.problem.IncomingAtInfinity iL iR f\n  radiation_equivalence : ∀ iL iR f,\n    p.problem.IncomingAtInfinity iL iR f ↔ p.problem.Admissible iL iR f (deriv f)\n  arbitrary_current : ∀ f v:ℝ→ℂ,\n    ClassicalState p.problem.coefficient p.problem.jumps f v →\n    ∀ x, current p.hbar p.mass f x=(p.hbar/p.mass)*(⟨f 0,v 0⟩:State).flux\n\n"
+  },
+  {
+    "file": "QuantumScattering/ReleaseAcceptance.lean",
+    "start": "structure FrameworkReleaseCertificate",
+    "end": "/-- The full source-level",
+    "expected": "structure FrameworkReleaseCertificate : Prop where\n  finite_layers : ∀ p:PhysicalProblem, ReusableFrameworkCertificate p\n  legacy_wave : ∀ (p:QuantumTunneling.RectangularParameters) (a b:ℂ),\n    RectangularBridge.rawWave p a b=p.coherentWave a b\n  legacy_matrix : ∀ p:QuantumTunneling.RectangularParameters,\n    (RectangularBridge.model p).problem.channels.scatteringMatrix=p.layer.scatteringMatrix\n  coherent_cascade : ∀ M N:ChannelTransfer,\n    M.feedback N≠0 ∧ (N.after M).t=N.t*M.t/M.feedback N ∧\n    (N.after M).rLeft=M.rLeft+M.t^2*N.rLeft/M.feedback N ∧\n    (N.after M).rRight=N.rRight+N.t^2*M.rRight/M.feedback N\n  exact_refinement : ∀ (l r:Port) (pre post:Stack) (δ a b:ℝ) (ha:0<a) (hb:0<b),\n    (channelTransfer l r (Stack.transfer\n      (pre++[Layer.segment δ (a+b) (add_pos ha hb)]++post))).scatteringMatrix=\n    (channelTransfer l r (Stack.transfer\n      (pre++[Layer.segment δ a ha,Layer.segment δ b hb]++post))).scatteringMatrix\n  backend_differential_contract : ∀ s:EvolutionSegment, ∀ iL iR:ℂ,\n    ∃! fv:(ℝ→ℂ)×(ℝ→ℂ), s.Admissible iL iR fv.1 fv.2\n  nonconstant_backend_witness :\n    SmoothBackend.evolution.coefficient 0≠SmoothBackend.evolution.coefficient 1\n\n"
+  },
+  {
+    "file": "QuantumScattering/RectangularBridge.lean",
+    "start": "def model",
+    "end": "def root",
+    "expected": "def model (p : Old) : PhysicalProblem where\n  hbar := p.hbar\n  mass := p.mass\n  energy := p.energy\n  leftLevel := 0\n  rightLevel := 0\n  layers := [⟨p.height,p.width,p.width_pos⟩]\n  hbar_pos := p.hbar_pos\n  mass_pos := p.mass_pos\n  left_open := p.energy_pos\n  right_open := p.energy_pos\n\n"
+  },
+  {
+    "file": "QuantumScattering/RectangularBridge.lean",
+    "start": "def rawWave",
+    "end": "def rawOutputs",
+    "expected": "def rawWave (p : Old) (a b : ℂ) : ℝ→ℂ :=\n  (model p).problem.wave ((root p:ℂ)*a) ((root p:ℂ)*b)\n\n"
+  },
+  {
+    "file": "QuantumScattering/Radiation.lean",
+    "start": "def IncomingAtInfinity",
+    "end": "lemma incoming_iff_admissible",
+    "expected": "def IncomingAtInfinity (p : Problem) (iL iR : ℂ) (f : ℝ→ℂ) : Prop :=\n  ClassicalState p.coefficient p.jumps f (deriv f) ∧\n  Tendsto (fun x => (p.left.modesAt 0 f x).forward) atBot (𝓝 iL) ∧\n  Tendsto (fun x => (p.right.modesAt (Stack.width p.layers) f x).backward)\n    atTop (𝓝 iR)\n\n"
+  },
+  {
+    "file": "QuantumScattering/EvolutionSegment.lean",
+    "start": "def Admissible",
+    "end": "lemma wave_admissible",
+    "expected": "def Admissible (s : EvolutionSegment) (iL iR : ℂ) (f v : ℝ→ℂ) : Prop :=\n  ClassicalState s.coefficient s.jumps f v ∧\n  (s.left.decode ⟨f 0,v 0⟩).forward=iL ∧\n  (s.right.decode ⟨f s.width,v s.width⟩).backward=iR\n\n"
+  },
+  {
+    "file": "QuantumTunneling/TwoSidedStates.lean",
+    "start": "structure StationaryState",
+    "end": "namespace StationaryState",
+    "expected": "structure StationaryState (p : RectangularParameters) (f : ℝ→ℂ) : Prop where\n  regularity : ContDiff ℝ 1 f\n  equation : ∀ x, x≠0 → x≠p.width →\n    HasDerivAt (deriv f) (p.layer.odeCoefficient x • f x) x\n\n"
+  },
+  {
+    "file": "QuantumTunneling/GeneralScatteringUniqueness.lean",
+    "start": "def AdmissibleScattering",
+    "end": "/-- Existence and uniqueness",
+    "expected": "def AdmissibleScattering (p : RectangularParameters) (iL iR : ℂ) (f : ℝ→ℂ) : Prop :=\n  StationaryState p f ∧ ∃ oL oR, TwoSidedRadiation p f iL iR oL oR\n\n"
+  },
+  {
+    "file": "QuantumScattering/RectangularBridge.lean",
+    "start": "theorem wave_eq_legacy",
+    "end": " := by",
+    "expected": "theorem wave_eq_legacy (p : Old) (a b : ℂ) :\n    rawWave p a b=p.coherentWave a b"
+  },
+  {
+    "file": "QuantumScattering/RectangularBridge.lean",
+    "start": "theorem scatteringMatrix_eq_legacy",
+    "end": " := by",
+    "expected": "theorem scatteringMatrix_eq_legacy (p : Old) :\n    (model p).problem.channels.scatteringMatrix=p.layer.scatteringMatrix"
+  }
+]

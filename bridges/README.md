@@ -1,0 +1,7 @@
+# 正式矩形回归的依赖说明
+
+本包QuantumTunneling目录是原Q5的40个候选数学模块，逐字节保留；源哈希在inherited-sources.json。
+核心QuantumScattering可以单独构建，但ReleaseAcceptance需真正导入旧Q5并验证RectangularBridge。
+旧Q5没有在本环境被核验，不能被当作已验证假设。通过旧一般解唯一性完成的新旧相等证明，也必须连同该依赖一并编译。
+
+若本地已有Q5修复版，保留原始修改/验证日志，按公开命题不弱化的规则逐项合并；默认release构建会记录变化。

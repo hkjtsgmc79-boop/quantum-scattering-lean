@@ -1,0 +1,386 @@
+{
+  "run_id": "20261113T125659785426Z",
+  "status": "RELEASE_PASS",
+  "target_toolchain": "leanprover/lean4:v4.35.0",
+  "mathlib_commit": "56a005855ea17e0b0958f73ec801ae140b0a1679",
+  "source_unchanged": true,
+  "source_hashes": {
+    "Audit.lean": "430899f15925c19941e547105b0fd67b60524a4571c0bbcfcef8dcdb856d59bd",
+    "BridgeAudit.lean": "e8554923f7e1d738c4b1b133f6950c8511876d27044738ec777115cd7c75cb49",
+    "BridgeExamples.lean": "7aadfd448887527f17a40ce5072fa8802f2cb55d8bb8208197afaddf42697ff0",
+    "Compatibility435.lean": "5728dceb48e45efacc7f3870fbe467d412890b0b72fbb1108a1af8339bcbded3",
+    "Examples.lean": "b9df971d6f73d9a50cf062cb63653b0238c59d0c485dc8e107da72ce1cc49b0d",
+    "FrameworkExamples.lean": "43df58d01321abcf8cd6addf49057a6bd50815f22ac9cd18ff2bcb39a450f7d7",
+    "QuantumScattering/Channels.lean": "4aa1a57c11b8027e944dd242cce745acd3dacdb7595f2d62edbe8e3377090697",
+    "QuantumScattering/EvolutionInterface.lean": "7fd658fae41211bfad43e815710d432ba3e76c288363d96c105af4ced5574ff2",
+    "QuantumScattering/EvolutionSegment.lean": "3ee8fcd1c7f8d0553a40993f71dc4fdcfc4540b8de157d6778bd7a718c967689",
+    "QuantumScattering/EvolutionUniqueness.lean": "1ec6d15c0bdf80a4ea6d5274a455733e2c7d665caeaae3b054105752fe7d0390",
+    "QuantumScattering/ExteriorModes.lean": "ddd74fe8af17b32492a3757a80caa010685a7998a66ac4814c1ebfa1b34e0438",
+    "QuantumScattering/FiniteScattering.lean": "cd90ad0f88aea1be099d31f2d081088675ea157799dacccd5fd587215ce4c624",
+    "QuantumScattering/FlowComposition.lean": "44bf8cd85d1be53920b1ab308df896ed1a67f550b67370e9d763a0a6f41de01d",
+    "QuantumScattering/Framework.lean": "01d681dd58da7e6fbaf10d63def0754e24011c6e7322a4af09a7f2b59ef8b211",
+    "QuantumScattering/FrameworkCompletion.lean": "16c3585d78db58eb4c284bd16d47bc77ab055306440f9d0ef6ccd9ca36a3253a",
+    "QuantumScattering/Layers.lean": "deae7682d6851272c0714a9a7730bda5b6e14ef2d932f7b7728fe1784649d221",
+    "QuantumScattering/LocalFlow.lean": "40d7e2f9b2dce199b752f28bc0cd2d3ea9a11a46dd834404dd453430c5ca825d",
+    "QuantumScattering/LocalUniqueness.lean": "2cf0bc89e010b0c72e2875fb1e4515708e5e186dfa5d876f4979a63e17853cbb",
+    "QuantumScattering/PhysicalModel.lean": "2f880ede39de6d02114c6ae289b4140ee122eac78bbfb90cc221ea179e6b34ba",
+    "QuantumScattering/Radiation.lean": "ca87d8b8a508a1e1b6d5ae39a3c6ae81f673d74c2eab5c661970e0e994f5efec",
+    "QuantumScattering/RealTransfer.lean": "9c7f995f3136487964c7106f6c6dd9b12ae75acdb7b3ce98cddfcdaf6525988e",
+    "QuantumScattering/RectangularBridge.lean": "1d39812923727df18ef524ea2190c5bb52de548e6543d4048ad08a2852bd95ae",
+    "QuantumScattering/Refinement.lean": "1ba603d7f78bac33add6e88617dd221a8a1ff1a70fd18003f2cf9370603ece54",
+    "QuantumScattering/ReleaseAcceptance.lean": "58749fcd1b291e2686a34976d134c38fe0e64981461f936e2d13d9286daef684",
+    "QuantumScattering/Scattering.lean": "5b0089979361af1cf8f71fe4a78bdef06db6f82f9a6a3c90cfd2c4bd64e15122",
+    "QuantumScattering/SmoothBackend.lean": "1b4979ad73cb35fb7a7501afc0140bad86fce111395a588263daa54cf7150607",
+    "QuantumScattering/Splicing.lean": "57d58208ee7b9818675a053285cd2459c1e53d70a142df1fd6f1faa153fd756f",
+    "QuantumScattering/StackUniqueness.lean": "06b3e9f964abf88df2b1d5be9c6d932de5a37e16e526db535d69bb0d00a8c8f4",
+    "QuantumScattering/StackWave.lean": "8200bf1b90be43aaba8e331e0bf4e1e02f3e9834da2e54b383e75b8e90e796cf",
+    "QuantumScattering/State.lean": "fffb5e2a37a4b5dfad6698b0b6e0340fd6a72e501e2b572a6c39cf82546e1e28",
+    "QuantumScattering/TransferComposition.lean": "f3d7feb00034163e40813e12565740b773bea08b59164e10b2ce76b8a6c81219",
+    "QuantumScattering.lean": "d1b9bf2eaa2bbf3b30a6e017e506a98350b0395c6c4187da8e879c5d67acdbc3",
+    "QuantumScatteringRelease.lean": "eebf4309e3207294961d69e9b5c61b9c2a64658113ef93fc6e78e2f3be70227d",
+    "QuantumTunneling/AllEnergyStatement.lean": "88768c28428505e7b4b21ef4ba03639929608938746f67bbe795f2c935eb5f94",
+    "QuantumTunneling/BarrierWave.lean": "afac77c24f63b035b3ba77c030e7ccfd7af49144d6d3d97d7121561ee94fd0b9",
+    "QuantumTunneling/Basic.lean": "64b0135de284df447a4a1a490b17c1a16182e2d9a8f8127251347b08299c782c",
+    "QuantumTunneling/BidirectionalProject.lean": "a9a61aed6f957d5bb706dfed440df505f299167e445f51073ed7ceb2e94703a4",
+    "QuantumTunneling/C1Regularity.lean": "2d852c793439cd9a1a0ad4bbbbe5be29341b2103cc75a8dc61c5dd76f2de0ad0",
+    "QuantumTunneling/CoherentCurrent.lean": "48ddd9fceeca443e02251ce3e326f91b09d7b4ad7abccb8cb022bebfad2c0dbb",
+    "QuantumTunneling/CompleteStatement.lean": "4159adb9db6843ff7f0fac7b4bba83d8778bcc717a00d2bcc5173c2bc075aee8",
+    "QuantumTunneling/ComplexTools.lean": "fdda199c66f124f142208e54b2bd5a5d1e6d3173996330f9fdd78c05eed2400d",
+    "QuantumTunneling/EnergyRegimes.lean": "f53b48a15118d17adfb6d61b34ef7766090d0964f3376eecdc03acad8fc133a1",
+    "QuantumTunneling/FundamentalRepresentation.lean": "35f5fa71f9ab5f522f08210a791a640668b205c8570158df1b908f9e892f0b11",
+    "QuantumTunneling/GeneralScatteringUniqueness.lean": "171047aaa06074b2bacb9d40929a1ef63b80bb7cf4225f8e0f1d41b21949b669",
+    "QuantumTunneling/Gluing.lean": "484443472c2c99a6f33f2b3a347bc40e5f55baa16ce0495b51743ddd9a1a70bb",
+    "QuantumTunneling/IntervalRigidity.lean": "b7a2b773c873f6063c37c6d3774be0855e3d65e113aceca544ef34fed4e58932",
+    "QuantumTunneling/Matching.lean": "d1a780d9183da3d056ffedc2f89c3250864b1cf39b4278599d0ad6e72f923eb2",
+    "QuantumTunneling/MatchingUniqueness.lean": "38c8d063ce8190f05b9c5591cfe26aa6c61ff91b3fbaad26e2a476024c0bfd65",
+    "QuantumTunneling/Normalization.lean": "894ce319d5f664e4c847c449ecd867a39a5d623b512027b6684e3aba9926fd41",
+    "QuantumTunneling/Observables.lean": "46d966fcf08b937402037856af1e8986b320000f8675138f093f81105b5ba2e3",
+    "QuantumTunneling/Physical.lean": "70710437306c8fe38ab0068e3d7a665e7cd8a0fc8a1b248c5410f7c55da16b85",
+    "QuantumTunneling/PhysicalLimits.lean": "5336257e2c910c0a7473887ffff35c59c058551111c52350d5668a0c9ce31dc4",
+    "QuantumTunneling/PhysicalResonance.lean": "2dbf5fea236031a836c9f257bbd2cf9d455f36f937a26cfed3947f1c79f5ab21",
+    "QuantumTunneling/PlaneWave.lean": "236903148bee98ea280f7a3b823807007fcf74f330d0143b81d8af278eeb6709",
+    "QuantumTunneling/Probabilities.lean": "b667ab6cdbae132a9fae6fcd2b93bb2e16bcd123762eb5116bc72820c62643ff",
+    "QuantumTunneling/PropagationProfile.lean": "10d31ca836b1ef86f1e095239fc4a090cac0dd7f785c1c1556db35fbf50701b4",
+    "QuantumTunneling/PublicStatement.lean": "d1a836e29418921ebbb81822ec78640e94425356e14bd5af6dbb5d272dd86807",
+    "QuantumTunneling/Q2Compatibility.lean": "e82856b718565669d800c5d62d2444d4d218d5a6d66d23c5acbb40ce63e0e8a2",
+    "QuantumTunneling/RadiationAtInfinity.lean": "8d5489178273e2a5bd87fe1f0ec4f63504b84a908a755d68230d6a55520694b4",
+    "QuantumTunneling/RectangularModel.lean": "5b578d70190282b500fd282ac8c51b6bc5164e356660d6331aa18cf2da3145bc",
+    "QuantumTunneling/RegularizedTransmission.lean": "9c3f9ed9fff3261d73abe2494059a2ea695cfe54fd238de42351d811ca6fc4db",
+    "QuantumTunneling/ResonanceClassification.lean": "7b78434ecc968996e6e3d94b63fe50cb14c0008c2ef226444ce474baa2bccda3",
+    "QuantumTunneling/ScatteringContinuity.lean": "1b59d203f4d762bee7c2a47c3f95a2dca088326a53da5886ab863ee9486125a5",
+    "QuantumTunneling/ScatteringMatrix.lean": "c6c2c304a84941aef4a794379a2800c6857fa7df4748f55f6bda091ca37b95e3",
+    "QuantumTunneling/ScatteringUniqueness.lean": "8494b8cb2998ab6896a6d11532afe6e153fc7d22f1a70c10ebe7a6a675fd24da",
+    "QuantumTunneling/ThresholdContinuity.lean": "d09ed53188af68c2ad1ed2b6e07a8c6e1141bca21ffd96551e3353184468b55a",
+    "QuantumTunneling/TransferAmplitudes.lean": "3d635f4b190d7c88702b0fcfc3bdf84e2364ed5e836a69071802524494b4f633",
+    "QuantumTunneling/TransferGluing.lean": "3320e9a569a3193293e1a5f0d66d73d46eb7e8d7d40cf08871c0470ddc709c5f",
+    "QuantumTunneling/TransferNormalization.lean": "e4ebde86f07da2f0cf9bd71ca4df1ae97b2e9f331ff839624555c0d874df67c2",
+    "QuantumTunneling/TransferObservables.lean": "ac5777f6cb736aa2971c387b5781b8e3b4fe391aea29435dbe12862cb75c6865",
+    "QuantumTunneling/TransferUniqueness.lean": "a83fa3091ab793fc0aaf14a0c6ab1164e07b2ffd59c777544682b9aa60f2dabc",
+    "QuantumTunneling/TransferWaves.lean": "ef5524a37bb3d2d8f28e843324a735a0347a0930a5d0028ca7ce4c2a42aca7e9",
+    "QuantumTunneling/TwoSidedStates.lean": "307087457a44143ac4e78076b0e195b073218c907c19e29e1feadd9a76a9b296",
+    "QuantumTunneling.lean": "6b78e7dae8cbfa4b704b9895fdc34fd6ea6e3d746c27032e865fb40ea6d28e33",
+    "Quantum_Scattering_F2_All.lean": "a7da3c2da2d512d49d4927bc66cc882b00649da57685a1ae1ba7c8c7cb1dc061",
+    "Quantum_Scattering_F2_Core_All.lean": "7c6370454c0a4ad375544a8244d716037d94072d2e4240c6f4f81b1e26d3a28f",
+    "ReleaseAudit.lean": "17bf64d700ec19eefe7f40fbeb5fcc46d836b37c0857b64a142cd4beb91290a7",
+    "contracts.json": "dc11c42c4388d2daed2bbbf34a0dcecdb43472f3aeace61aa4c2eda8e1a514da",
+    "lake-manifest.json": "5f5f9180f9242af87e2a2c06ef0d0a70225062c743c2a0954510dcdf073784b0",
+    "lakefile.toml": "4a61b4b181db28c872f47baf53b2745bb73f4fa8dc084e51b8a602107e59064a",
+    "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+    "scripts/build_support.py": "97702bd809e5304887f767b39a3a397efdb81db78db8bc1d22e63f352edddbc4",
+    "scripts/check_f2.py": "57d558e67beda2437d48c7d9f508b2f116ca5e2d6338fed22c6be5de3e1f6b93",
+    "scripts/check_kernel_linux435.sh": "47b48ec85b6a03312bcf02b9a7e0877d415429d4e667992f6e5dae26c2aafa7d",
+    "scripts/check_mathematics.py": "94ef7fb9874da59f1817117b7d2fa433ce6e145313890d64c2ac5b03387b3de5",
+    "scripts/complete_lean435.sh": "f4c23e37eb2dc5f9ebc81b8c47106f719e9d408da9feb20648f0fe4a91ff0b1b",
+    "scripts/migration_support.py": "ab5cfddc1d07463711475d06f6727d7f6ebadade8c827c67e1220188337e87a8",
+    "scripts/prepare_lean435.sh": "c05e09d3643ad7311470c7d935ede765c840ba9e94e55cfb0d29dec54a4ad2a0",
+    "scripts/verify.py": "3c8763390ee20ae898e53fc0fabd7d9ee2e58a795bd74be11b66505389a0ab10",
+    "scripts/verify.sh": "8769d88332524ed38ee780d52aa71f70c923ae17b272bb148a04eebba6fd8c4d",
+    "toolchain-lock.json": "8d25ac6e463e2b045c9eb88142f10625a7fab95f8cddbd7e47d9c2b0980f05ad"
+  },
+  "audit_counts": {
+    "Audit": 45,
+    "CoreAll": 45,
+    "BridgeAudit": 9,
+    "ReleaseAudit": 1,
+    "FullAll": 55
+  },
+  "proof_modules": 65,
+  "audit_declarations": {
+    "QuantumScattering.RealTransfer.flux_preserved": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RealTransfer.chain_append": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.LocalProfile.local_cauchy_solution": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Stack.compositional_contract": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Port.encode_flux": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.channelTransfer_action": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.ChannelTransfer.existsUnique_outgoing": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.ChannelTransfer.unitary_matrix": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.ChannelTransfer.coherent_balance": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Stack.classical_wave": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Stack.actual_current": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.LocalProfile.cauchy_unique_on_closed_interval": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Stack.tail_representation": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Problem.arbitrary_scattering_unique": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Problem.existsUnique_classical_scattering": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.PhysicalProblem.schrodinger": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.finite_piecewise_real_scattering": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.any_finite_real_layers": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Port.free_mode_value": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Problem.left_plane_wave": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Problem.right_plane_wave": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RealEvolution.wronskian_one": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RealEvolution.actual_current": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RealEvolution.ofLocal_transfer": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RealEvolution.scattering_contract": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.ChannelTransfer.feedback_ne_zero": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.ChannelTransfer.cascade_transmission": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.ChannelTransfer.cascade_reflection_left": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.ChannelTransfer.cascade_reflection_right": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.channelTransfer_after": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.stack_cascade": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.LocalProfile.flow_add": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.LocalProfile.flow_eq_of_delta_eq": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Stack.split_scattering": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Stack.split_tail_anywhere": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Problem.incoming_iff_admissible": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Problem.existsUnique_incoming_at_infinity": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.Problem.current_arbitrary_classical": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RealEvolution.state_representation": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.EvolutionSegment.complete_scattering": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.SmoothBackend.smooth_scattering_unique": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.SmoothBackend.smooth_physical_solution": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.SmoothBackend.coefficient_not_constant": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.reusable_finite_layer_framework": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.any_finite_layers_with_asymptotic_uniqueness": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.wave_eq_legacy": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.derivative_eq_legacy": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.current_eq_legacy": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.rawOutputs_eq_legacy": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.scatteringMatrix_eq_legacy": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.transmission_eq_legacy": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.reflection_eq_legacy": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.framework_complete_resonance": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.RectangularBridge.framework_physical_families": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "QuantumScattering.reusable_scattering_framework_release": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ]
+  },
+  "archive_sha256": "2fcb604f85e6c8be3331a9505c5317a8ef78de2151bc464a524502327929e2bf"
+}

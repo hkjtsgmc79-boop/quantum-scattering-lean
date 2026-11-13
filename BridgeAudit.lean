@@ -1,0 +1,10 @@
+import QuantumScattering.RectangularBridge
+#print axioms QuantumScattering.RectangularBridge.wave_eq_legacy
+#print axioms QuantumScattering.RectangularBridge.derivative_eq_legacy
+#print axioms QuantumScattering.RectangularBridge.current_eq_legacy
+#print axioms QuantumScattering.RectangularBridge.rawOutputs_eq_legacy
+#print axioms QuantumScattering.RectangularBridge.scatteringMatrix_eq_legacy
+#print axioms QuantumScattering.RectangularBridge.transmission_eq_legacy
+#print axioms QuantumScattering.RectangularBridge.reflection_eq_legacy
+#print axioms QuantumScattering.RectangularBridge.framework_complete_resonance
+#print axioms QuantumScattering.RectangularBridge.framework_physical_families

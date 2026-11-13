@@ -1,0 +1,27 @@
+你负责把一维量子散射框架 F2 的完整65模块工程在 Lean 4.35.0 上实际编译、修复并核验。当前交付是迁移准备版，不是编译成功版本。不要重新扩题。
+
+一、固定目标与工具链
+读取00_START_HERE.md、MIGRATION_REPORT.md、FRAMEWORK_SCOPE.md、PROOF_MAP.md和contracts.json。
+只用 leanprover/lean4:v4.35.0 + Mathlib 56a005855ea17e0b0958f73ec801ae140b0a1679（tag v4.35.0）。不要退回4.30，不换master/latest，不复用4.30的olean缓存。
+
+二、执行环境
+在新解压目录执行 bash scripts/complete_lean435.sh。
+允许安装这个指定工具链和本项目固定依赖，但不改变elan全局默认、不删除旧工具链、不修改其他工程或共享Mathlib源码。缺少elan时按官方流程补装，不使用sudo。已有环境可直接运行 bash scripts/verify.sh --target release，或显式给出--lean和--mathlib-root。
+
+三、真实修复
+1. 从第一条真实错误入手。先23个独立框架模块，再40个Q5依赖，再2个桥接/总入口。Compatibility435.lean只诊断依赖导入，不能代替主证明。
+2. 原F2、Q4/Q5很多代码从未编译，因此错误可能不仅来自版本升级。允许补真实引理、重写证明体、调整确实等价的实现；记录差异和理由。
+3. 必须保留全部数学目标、任意有限层、两通道归一化、真实HasDerivAt/deriv、完整函数唯一性、相位约定、实际概率流和Q5严格回归。
+4. 禁止sorry/admit、自设axiom、unsafe、native_decide、跳过内核检查；禁止将守恒、S幺正、解存在唯一等结论移进前提。不要删审计项、改允许公理名单或直接改验证成功状态。
+5. contracts.json保护公共陈述及关键定义。不能关闭保护来冒充完成。若发现数学语义错误，保留证据、解释所需修正；不静默弱化。
+6. 原65个数学模块在本迁移包中逐字节保留，没有未经证据的大规模API猜改。用本机精确Mathlib源码和真实编译输出修复，不凭滚动文档乱改名称。
+7. 每批修改后执行 python3 scripts/build_support.py，再完整复跑。不要只修改合并文件，不要在验证过程中并行改源码。所有修改写入FIX_REPORT.md。
+8. 新默认Lake入口是QuantumScatteringRelease，包含Q5桥接。只通过QuantumScattering核心、或通过lake build但未完成原始审计流程，都不能声称全项目通过。
+
+四、完成标准
+默认release必须完成65个数学模块、三个示例套件、完整入口、两个合并文件、45+9+1个重点公理检查。仅允许propext、Classical.choice、Quot.sound。实际验证输出必须为RELEASE_PASS，且源码哈希前后一致。
+PREFLIGHT_PASS仅环境，CORE_PASS仅核心，不是完成。任何失败返回实际日志和失败阶段，不要声称只剩几行修复。
+
+五、回传
+最后输出真实状态、修改文件及理由，把 reports/Quantum_Scattering_Lean435_return_<run_id>.zip 和FIX_REPORT.md交给用户。若准备环境失败，附reports/setup435_*/setup.log及退出码。
+不发布公开仓库、PR、预印本，不改分享权限，不读取或上传无关目录、密钥或其他用户资料。
